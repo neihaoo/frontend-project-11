@@ -1,0 +1,45 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "RSS Reader (Hexlet Frontend Project Level 3)",
+  "keywords": [
+    "rss",
+    "rss reader",
+    "hexlet",
+    "hexlet project'"
+  ],
+  "homepage": "https://github.com/neihaoo/frontend-project-11#readme",
+  "bugs": {
+    "url": "https://github.com/neihaoo/frontend-project-11/issues"
+  },
+  "license": "ISC",
+  "author": "neihaoo",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neihaoo/frontend-project-11.git"
+  },
+  "main": "src/index.js",
+  "devDependencies": {
+    "autoprefixer": "^10.4.13",
+    "css-loader": "^6.7.3",
+    "eslint": "^8.29.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.7.2",
+    "postcss": "^8.4.20",
+    "postcss-loader": "^7.0.2",
+    "prettier": "^2.8.1",
+    "sass": "^1.56.2",
+    "sass-loader": "^13.2.0",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.11.1"
+  },
+  "dependencies": {
+    "bootstrap": "^5.2.3"
+  }
+}
