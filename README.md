@@ -6,11 +6,11 @@
 
 RSS Reader is a service for aggregating RSS feeds that makes it easy to read a variety of sources, such as blogs. It allows you to add an unlimited number of RSS feeds, updates them and adds new entries to the total stream.
 
-[View demo on Vercel](frontend-project-11-r78jcnjzf-neihaoo.vercel.app)
+[View demo on Vercel](https://hexlet-project-rss-reader.vercel.app/)
 
 ## Requirements
 
-* NodeJS 19+
+* NodeJS 18+
 * GNU Make
 
 ## Install
