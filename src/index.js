@@ -1,4 +1,5 @@
 import './scss/styles.scss';
+import 'bootstrap';
+import app from './js/init.js';
 
-// eslint-disable-next-line no-unused-vars
-import * as bootstrap from 'bootstrap';
+app();
