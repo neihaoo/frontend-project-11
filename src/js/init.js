@@ -1,22 +1,43 @@
-import onChange from 'on-change';
-import * as yup from 'yup';
+import { string, setLocale } from 'yup';
+import i18next from 'i18next';
 import render from './view.js';
+import onChange from 'on-change';
+import resources from '../locales/index.js';
 
-const schema = yup.object().shape({
-  url: yup.string().url().required(),
-});
+const urlSchema = string().url().required();
 
-const validate = (fields) => {
+const validate = (field, i18nextInstance) => {
+  setLocale({
+    string: {
+      url: 'url_invalid',
+    },
+  });
+
   try {
-    schema.validateSync(fields, { abortEarly: false });
+    urlSchema.validateSync(field, { abortEarly: false });
 
     return '';
-  } catch (e) {
-    return 'Ссылка должна быть валидным URL';
+  } catch (err) {
+    return i18nextInstance.t('url_invalid');
   }
 };
 
 export default () => {
+  const initialState = {
+    lng: 'ru',
+    form: {
+      valid: null,
+      error: null,
+    },
+  };
+
+  const i18nextInstance = i18next.createInstance();
+
+  i18nextInstance.init({
+    lng: initialState.lng,
+    resources,
+  });
+
   const elements = {
     feedback: document.querySelector('.feedback'),
     form: document.querySelector('.rss-form'),
@@ -24,14 +45,7 @@ export default () => {
     submitButton: document.querySelector('button[type="submit"]'),
   };
 
-  const initialState = {
-    form: {
-      valid: null,
-      error: null,
-    },
-  };
-
-  const state = onChange(initialState, render(elements, initialState));
+  const state = onChange(initialState, render(elements, initialState, i18nextInstance));
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -39,7 +53,7 @@ export default () => {
     const formData = new FormData(elements.form);
 
     const url = formData.get('url');
-    const error = validate({ url });
+    const error = validate(url, i18nextInstance);
 
     state.form.error = error;
     state.form.valid = error.length === 0;
