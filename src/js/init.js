@@ -1,7 +1,7 @@
 import { string, setLocale } from 'yup';
 import i18next from 'i18next';
-import render from './view.js';
 import onChange from 'on-change';
+import render from './view.js';
 import resources from '../locales/index.js';
 
 const urlSchema = string().url().required();
