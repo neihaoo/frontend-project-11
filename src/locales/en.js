@@ -1,6 +1,11 @@
 export default {
   translation: {
-    url_invalid: 'The link must be a valid URL',
-    get_success: 'RSS successfully uploaded',
+    errors: {
+      invalidURL: 'The link must be a valid URL',
+      parserError: 'Resource does not contain valid RSS',
+    },
+    success: 'RSS successfully uploaded',
+    feedsTitle: 'Feeds',
+    postsTitle: 'Posts',
   },
 };

@@ -1,6 +1,11 @@
 export default {
   translation: {
-    url_invalid: 'Ссылка должна быть валидным URL',
-    get_success: 'RSS успешно загружен',
+    errors: {
+      invalidURL: 'Ссылка должна быть валидным URL',
+      parserError: 'Ресурс не содержит валидный RSS',
+    },
+    success: 'RSS успешно загружен',
+    feedsTitle: 'Фиды',
+    postsTitle: 'Посты',
   },
 };
