@@ -1,11 +1,18 @@
 export default {
   translation: {
-    errors: {
-      invalidURL: 'The link must be a valid URL',
-      parserError: 'Resource does not contain valid RSS',
+    loading: {
+      success: 'Rss has been loaded',
     },
-    success: 'RSS successfully uploaded',
-    feedsTitle: 'Feeds',
-    postsTitle: 'Posts',
+    errors: {
+      exists: 'Rss already exists',
+      required: 'Required',
+      notURL: 'Must be valid url',
+      noRSS: "This source doesn't contain valid rss",
+      network: 'Network error',
+      unknown: 'Something went wrong',
+    },
+    feeds: 'Feeds',
+    posts: 'Posts',
+    preview: 'Preview',
   },
 };
