@@ -1,60 +1,54 @@
+/* eslint-disable no-param-reassign  */
+
 const renderFormState = (elements, state, i18next) => {
-  const { urlField, feedback } = elements;
-  const { valid, error } = state;
-
-  if (valid) {
-    urlField.classList.remove('is-invalid');
+  if (state.valid) {
+    elements.urlField.classList.remove('is-invalid');
   } else {
-    feedback.textContent = i18next.t([`errors.${error}`, 'errors.unknown']);
+    elements.feedback.textContent = i18next.t([`errors.${state.error}`, 'errors.unknown']);
 
-    urlField.classList.add('is-invalid');
-    feedback.classList.add('text-danger');
+    elements.urlField.classList.add('is-invalid');
+    elements.feedback.classList.add('text-danger');
   }
 };
 
 const handleProcessState = (elements, state, i18next) => {
-  const { submitButton, urlField, feedback } = elements;
-  const { loadingProcess } = state;
-
-  switch (loadingProcess.status) {
+  switch (state.loadingProcess.status) {
     case 'idle':
-      submitButton.disabled = false;
-      urlField.value = '';
-      feedback.textContent = i18next.t('loading.success');
+      elements.submitButton.disabled = false;
+      elements.urlField.value = '';
+      elements.feedback.textContent = i18next.t('loading.success');
 
-      urlField.focus();
-      urlField.removeAttribute('readonly');
-      feedback.classList.add('text-success');
+      elements.urlField.focus();
+      elements.urlField.removeAttribute('readonly');
+      elements.feedback.classList.add('text-success');
 
       break;
 
     case 'loading':
-      submitButton.disabled = true;
-      feedback.innerHTML = '';
+      elements.submitButton.disabled = true;
+      elements.feedback.innerHTML = '';
 
-      urlField.setAttribute('readonly', true);
-      feedback.classList.remove('text-success');
-      feedback.classList.remove('text-danger');
+      elements.urlField.setAttribute('readonly', true);
+      elements.feedback.classList.remove('text-success');
+      elements.feedback.classList.remove('text-danger');
 
       break;
 
     case 'failed':
-      submitButton.disabled = false;
-      feedback.textContent = i18next.t([`errors.${loadingProcess.error}`, 'errors.unknown']);
+      elements.submitButton.disabled = false;
+      elements.feedback.textContent = i18next.t([`errors.${state.loadingProcess.error}`, 'errors.unknown']);
 
-      urlField.removeAttribute('readonly');
-      feedback.classList.add('text-danger');
+      elements.urlField.removeAttribute('readonly');
+      elements.feedback.classList.add('text-danger');
 
       break;
 
     default:
-      throw new Error(`Unknown loadingProcess status: '${loadingProcess.status}'`);
+      throw new Error(`Unknown loadingProcess status: '${state.loadingProcess.status}'`);
   }
 };
 
 const renderFeeds = (elements, state, i18next) => {
-  const { feeds } = state;
-  const { feedsContainer } = elements;
   const div = document.createElement('div');
   const h2 = document.createElement('h2');
   const ul = document.createElement('ul');
@@ -68,7 +62,7 @@ const renderFeeds = (elements, state, i18next) => {
 
   div.querySelector('.card-body').appendChild(h2);
 
-  const list = feeds.map(({ title, description }) => {
+  const list = state.feeds.map(({ title, description }) => {
     const li = document.createElement('li');
     const h3 = document.createElement('h3');
     const p = document.createElement('p');
@@ -85,16 +79,14 @@ const renderFeeds = (elements, state, i18next) => {
     return li;
   });
 
-  feedsContainer.innerHTML = '';
+  elements.feedsContainer.innerHTML = '';
 
   ul.append(...list);
   div.appendChild(ul);
-  feedsContainer.appendChild(div);
+  elements.feedsContainer.appendChild(div);
 };
 
 const renderPosts = (elements, state, i18next) => {
-  const { posts, ui } = state;
-  const { postsContainer } = elements;
   const div = document.createElement('div');
   const h2 = document.createElement('h2');
   const ul = document.createElement('ul');
@@ -108,11 +100,11 @@ const renderPosts = (elements, state, i18next) => {
 
   div.querySelector('.card-body').appendChild(h2);
 
-  const list = posts.map((post) => {
+  const list = state.posts.map((post) => {
     const li = document.createElement('li');
     const a = document.createElement('a');
     const button = document.createElement('button');
-    const seenPosts = ui.seenPosts.has(post.id) ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
+    const seenPosts = state.ui.seenPosts.has(post.id) ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
 
     a.dataset.id = post.id;
     a.textContent = post.title;
@@ -141,11 +133,11 @@ const renderPosts = (elements, state, i18next) => {
     return li;
   });
 
-  postsContainer.innerHTML = '';
+  elements.postsContainer.innerHTML = '';
 
   ul.append(...list);
   div.appendChild(ul);
-  postsContainer.appendChild(div);
+  elements.postsContainer.appendChild(div);
 };
 
 const renderModal = (elements, state) => {

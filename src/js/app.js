@@ -1,24 +1,25 @@
 /* eslint-disable no-param-reassign  */
 
-import { string, setLocale } from 'yup';
-import { xorWith, uniqueId } from 'lodash';
+import axios from 'axios';
 import i18next from 'i18next';
 import onChange from 'on-change';
-import axios from 'axios';
+import { differenceWith, uniqueId } from 'lodash';
+
 import render from './view.js';
-import resources from '../locales/index.js';
 import parse from './parser.js';
+import validate from './validator.js';
+import resources from '../locales/index.js';
 
 const UPDATE_TIME = 5000;
 
 const elements = {
-  feedback: document.querySelector('.feedback'),
+  modal: document.querySelector('#modal'),
   form: document.querySelector('.rss-form'),
+  feedback: document.querySelector('.feedback'),
   urlField: document.getElementById('url-input'),
-  submitButton: document.querySelector('button[type="submit"]'),
   feedsContainer: document.querySelector('.feeds'),
   postsContainer: document.querySelector('.posts'),
-  modal: document.querySelector('#modal'),
+  submitButton: document.querySelector('button[type="submit"]'),
 };
 
 const proxy = (url) => {
@@ -34,12 +35,12 @@ const proxy = (url) => {
 const updateFeeds = (state) => {
   const promise = state.feeds.map(({ url, id }) =>
     axios.get(proxy(url)).then((response) => {
+      const currentPosts = state.posts.filter(({ feedId }) => feedId === id);
       const loadedPosts = parse(response.data.contents).posts.map((post) => ({
         ...post,
         feedId: id,
       }));
-      const currentPosts = state.posts.filter(({ feedId }) => feedId === id);
-      const newPosts = xorWith(
+      const newPosts = differenceWith(
         loadedPosts,
         currentPosts,
         (loadedPost, currentPost) => loadedPost.title === currentPost.title
@@ -81,7 +82,7 @@ const handleErrorState = (error, state) => {
   }
 };
 
-const app = () => {
+export default () => {
   const initialState = {
     feeds: [],
     posts: [],
@@ -110,29 +111,12 @@ const app = () => {
       resources,
     })
     .then(() => {
-      setLocale({
-        string: {
-          url: 'notURL',
-        },
-        mixed: {
-          required: 'required',
-          notOneOf: 'exists',
-        },
-      });
-
       const state = onChange(initialState, render(elements, initialState, i18nextInstance));
-
-      const validate = (currentURL, feeds) => {
-        const previousURLs = feeds.map(({ url }) => url);
-
-        return string().url().required().notOneOf(previousURLs).validate(currentURL);
-      };
 
       elements.form.addEventListener('submit', (event) => {
         event.preventDefault();
 
-        const formData = new FormData(event.target);
-        const url = formData.get('url');
+        const url = new FormData(event.target).get('url');
 
         validate(url, state.feeds)
           .then(() => {
@@ -174,5 +158,3 @@ const app = () => {
       setTimeout(() => updateFeeds(state), UPDATE_TIME);
     });
 };
-
-export default app;
