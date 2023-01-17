@@ -13,7 +13,8 @@ setLocale({
 const validate = (currentURL, feeds) => {
   const previousURLs = feeds.map(({ url }) => url);
 
-  return string().url().required().notOneOf(previousURLs).validate(currentURL);
+  return string().url().required().notOneOf(previousURLs)
+    .validate(currentURL);
 };
 
 export default validate;

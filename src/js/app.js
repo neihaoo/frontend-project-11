@@ -33,22 +33,20 @@ const proxy = (url) => {
 };
 
 const updateFeeds = (state) => {
-  const promise = state.feeds.map(({ url, id }) =>
-    axios.get(proxy(url)).then((response) => {
-      const currentPosts = state.posts.filter(({ feedId }) => feedId === id);
-      const loadedPosts = parse(response.data.contents).posts.map((post) => ({
-        ...post,
-        feedId: id,
-      }));
-      const newPosts = differenceWith(
-        loadedPosts,
-        currentPosts,
-        (loadedPost, currentPost) => loadedPost.title === currentPost.title
-      ).map((post) => ({ ...post, id: uniqueId() }));
+  const promise = state.feeds.map(({ url, id }) => axios.get(proxy(url)).then((response) => {
+    const currentPosts = state.posts.filter(({ feedId }) => feedId === id);
+    const loadedPosts = parse(response.data.contents).posts.map((post) => ({
+      ...post,
+      feedId: id,
+    }));
+    const newPosts = differenceWith(
+      loadedPosts,
+      currentPosts,
+      (loadedPost, currentPost) => loadedPost.title === currentPost.title,
+    ).map((post) => ({ ...post, id: uniqueId() }));
 
-      state.posts.unshift(...newPosts);
-    })
-  );
+    state.posts.unshift(...newPosts);
+  }));
 
   Promise.all(promise).finally(() => {
     setTimeout(() => updateFeeds(state), UPDATE_TIME);
@@ -129,7 +127,9 @@ export default () => {
           })
           .then((response) => {
             const { title, description, posts } = parse(response.data.contents);
-            const feed = { id: uniqueId(), url, title, description };
+            const feed = {
+              id: uniqueId(), url, title, description,
+            };
             const postsList = posts.map((post) => ({ ...post, id: uniqueId(), feedId: feed.id }));
 
             state.feeds.unshift(feed);
