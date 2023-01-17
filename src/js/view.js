@@ -1,60 +1,10 @@
-/* eslint-disable no-param-reassign  */
-
-const renderFormState = (elements, state, i18next) => {
-  if (state.valid) {
-    elements.urlField.classList.remove('is-invalid');
-  } else {
-    elements.feedback.textContent = i18next.t([`errors.${state.error}`, 'errors.unknown']);
-
-    elements.urlField.classList.add('is-invalid');
-    elements.feedback.classList.add('text-danger');
-  }
-};
-
-const handleProcessState = (elements, state, i18next) => {
-  switch (state.loadingProcess.status) {
-    case 'idle':
-      elements.submitButton.disabled = false;
-      elements.urlField.value = '';
-      elements.feedback.textContent = i18next.t('loading.success');
-
-      elements.urlField.focus();
-      elements.urlField.removeAttribute('readonly');
-      elements.feedback.classList.add('text-success');
-
-      break;
-
-    case 'loading':
-      elements.submitButton.disabled = true;
-      elements.feedback.innerHTML = '';
-
-      elements.urlField.setAttribute('readonly', true);
-      elements.feedback.classList.remove('text-success');
-      elements.feedback.classList.remove('text-danger');
-
-      break;
-
-    case 'failed':
-      elements.submitButton.disabled = false;
-      elements.feedback.textContent = i18next.t([`errors.${state.loadingProcess.error}`, 'errors.unknown']);
-
-      elements.urlField.removeAttribute('readonly');
-      elements.feedback.classList.add('text-danger');
-
-      break;
-
-    default:
-      throw new Error(`Unknown loadingProcess status: '${state.loadingProcess.status}'`);
-  }
-};
-
-const renderFeeds = (elements, state, i18next) => {
+const createDOMElement = (title, list) => {
   const div = document.createElement('div');
   const h2 = document.createElement('h2');
   const ul = document.createElement('ul');
 
   div.innerHTML = "<div class='card-body'></div>";
-  h2.textContent = i18next.t('feeds');
+  h2.textContent = title;
 
   div.classList.add('card', 'border-0');
   h2.classList.add('card-title', 'h4');
@@ -62,7 +12,71 @@ const renderFeeds = (elements, state, i18next) => {
 
   div.querySelector('.card-body').appendChild(h2);
 
-  const list = state.feeds.map(({ title, description }) => {
+  ul.append(...list);
+  div.appendChild(ul);
+
+  return div;
+};
+
+const renderFormState = (elements, state, i18next) => {
+  const { urlField, feedback } = elements;
+  const { valid, error } = state;
+
+  if (valid) {
+    urlField.classList.remove('is-invalid');
+  } else {
+    feedback.textContent = i18next.t([`errors.${error}`, 'errors.unknown']);
+
+    urlField.classList.add('is-invalid');
+    feedback.classList.add('text-danger');
+  }
+};
+
+const handleProcessState = (elements, state, i18next) => {
+  const { submitButton, urlField, feedback } = elements;
+  const { loadingProcess } = state;
+
+  switch (loadingProcess.status) {
+    case 'idle':
+      submitButton.disabled = false;
+      urlField.value = '';
+      feedback.textContent = i18next.t('loading.success');
+
+      urlField.focus();
+      urlField.removeAttribute('readonly');
+      feedback.classList.add('text-success');
+
+      break;
+
+    case 'loading':
+      submitButton.disabled = true;
+      feedback.innerHTML = '';
+
+      urlField.setAttribute('readonly', true);
+      feedback.classList.remove('text-success');
+      feedback.classList.remove('text-danger');
+
+      break;
+
+    case 'failed':
+      submitButton.disabled = false;
+      feedback.textContent = i18next.t([`errors.${loadingProcess.error}`, 'errors.unknown']);
+
+      urlField.removeAttribute('readonly');
+      feedback.classList.add('text-danger');
+
+      break;
+
+    default:
+      throw new Error(`Unknown loadingProcess status: '${loadingProcess.status}'`);
+  }
+};
+
+const renderFeeds = (elements, state, i18next) => {
+  const { feedsContainer } = elements;
+  const { feeds } = state;
+
+  const list = feeds.map(({ title, description }) => {
     const li = document.createElement('li');
     const h3 = document.createElement('h3');
     const p = document.createElement('p');
@@ -79,41 +93,31 @@ const renderFeeds = (elements, state, i18next) => {
     return li;
   });
 
-  elements.feedsContainer.innerHTML = '';
+  const div = createDOMElement(i18next.t('feeds'), list);
 
-  ul.append(...list);
-  div.appendChild(ul);
-  elements.feedsContainer.appendChild(div);
+  feedsContainer.innerHTML = '';
+
+  feedsContainer.appendChild(div);
 };
 
 const renderPosts = (elements, state, i18next) => {
-  const div = document.createElement('div');
-  const h2 = document.createElement('h2');
-  const ul = document.createElement('ul');
+  const { postsContainer } = elements;
+  const { posts, ui } = state;
 
-  div.innerHTML = "<div class='card-body'></div>";
-  h2.textContent = i18next.t('posts');
-
-  div.classList.add('card', 'border-0');
-  h2.classList.add('card-title', 'h4');
-  ul.classList.add('list-group', 'border-0', 'rounded-0');
-
-  div.querySelector('.card-body').appendChild(h2);
-
-  const list = state.posts.map((post) => {
+  const list = posts.map(({ id, title, link }) => {
     const li = document.createElement('li');
     const a = document.createElement('a');
     const button = document.createElement('button');
-    const seenPosts = state.ui.seenPosts.has(post.id) ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
+    const seenPosts = ui.seenPosts.has(id) ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
 
-    a.dataset.id = post.id;
-    a.textContent = post.title;
-    button.dataset.id = post.id;
+    a.dataset.id = id;
+    a.textContent = title;
+    button.dataset.id = id;
     button.dataset.bsToggle = 'modal';
     button.dataset.bsTarget = '#modal';
     button.textContent = i18next.t('preview');
 
-    a.setAttribute('href', post.link);
+    a.setAttribute('href', link);
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
     button.setAttribute('type', 'button');
@@ -133,11 +137,11 @@ const renderPosts = (elements, state, i18next) => {
     return li;
   });
 
-  elements.postsContainer.innerHTML = '';
+  const div = createDOMElement(i18next.t('posts'), list);
 
-  ul.append(...list);
-  div.appendChild(ul);
-  elements.postsContainer.appendChild(div);
+  postsContainer.innerHTML = '';
+
+  postsContainer.appendChild(div);
 };
 
 const renderModal = (elements, state) => {
