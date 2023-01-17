@@ -32,7 +32,7 @@ const renderFormState = (elements, state, i18next) => {
 };
 
 const handleProcessState = (elements, state, i18next) => {
-  switch (state.state.loadingProcess.status) {
+  switch (state.loadingProcess.status) {
     case 'idle':
       elements.submitButton.disabled = false;
       elements.urlField.value = '';
