@@ -3,24 +3,14 @@
 import axios from 'axios';
 import i18next from 'i18next';
 import onChange from 'on-change';
+import { string, setLocale } from 'yup';
 import { differenceWith, uniqueId } from 'lodash';
 
 import render from './view.js';
 import parse from './parser.js';
-import validate from './validator.js';
 import resources from '../locales/index.js';
 
 const UPDATE_TIME = 5000;
-
-const elements = {
-  modal: document.querySelector('#modal'),
-  form: document.querySelector('.rss-form'),
-  feedback: document.querySelector('.feedback'),
-  urlField: document.getElementById('url-input'),
-  feedsContainer: document.querySelector('.feeds'),
-  postsContainer: document.querySelector('.posts'),
-  submitButton: document.querySelector('button[type="submit"]'),
-};
 
 const proxy = (url) => {
   const proxyURL = new URL('/get', 'https://allorigins.hexlet.app');
@@ -30,6 +20,13 @@ const proxy = (url) => {
   proxyURL.toString();
 
   return proxyURL;
+};
+
+const validate = (currentURL, feeds) => {
+  const previousURLs = feeds.map(({ url }) => url);
+
+  return string().url().required().notOneOf(previousURLs)
+    .validate(currentURL);
 };
 
 const updateFeeds = (state) => {
@@ -100,6 +97,16 @@ export default () => {
     },
   };
 
+  const elements = {
+    modal: document.querySelector('#modal'),
+    form: document.querySelector('.rss-form'),
+    feedback: document.querySelector('.feedback'),
+    urlField: document.getElementById('url-input'),
+    feedsContainer: document.querySelector('.feeds'),
+    postsContainer: document.querySelector('.posts'),
+    submitButton: document.querySelector('button[type="submit"]'),
+  };
+
   const i18nextInstance = i18next.createInstance();
 
   i18nextInstance
@@ -109,6 +116,16 @@ export default () => {
       resources,
     })
     .then(() => {
+      setLocale({
+        string: {
+          url: 'notURL',
+        },
+        mixed: {
+          required: 'required',
+          notOneOf: 'exists',
+        },
+      });
+
       const state = onChange(initialState, render(elements, initialState, i18nextInstance));
 
       elements.form.addEventListener('submit', (event) => {
@@ -119,8 +136,6 @@ export default () => {
         validate(url, state.feeds)
           .then(() => {
             state.form = { ...state.form, valid: true, error: null };
-          })
-          .then(() => {
             state.loadingProcess.status = 'loading';
 
             return axios.get(proxy(url));
@@ -136,7 +151,7 @@ export default () => {
             state.posts.unshift(...postsList);
 
             state.loadingProcess.error = null;
-            state.loadingProcess.status = 'idle';
+            state.loadingProcess.status = 'success';
           })
           .catch((error) => {
             handleErrorState(error, state);

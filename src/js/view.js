@@ -33,7 +33,7 @@ const renderFormState = (elements, state, i18next) => {
 
 const handleProcessState = (elements, state, i18next) => {
   switch (state.loadingProcess.status) {
-    case 'idle':
+    case 'success':
       elements.submitButton.disabled = false;
       elements.urlField.value = '';
       elements.feedback.textContent = i18next.t('loading.success');
@@ -68,8 +68,8 @@ const handleProcessState = (elements, state, i18next) => {
   }
 };
 
-const renderFeeds = (elements, state, i18next) => {
-  const list = state.feeds.map(({ title, description }) => {
+const renderFeeds = (elements, feeds, i18next) => {
+  const list = feeds.map(({ title, description }) => {
     const li = document.createElement('li');
     const h3 = document.createElement('h3');
     const p = document.createElement('p');
@@ -156,7 +156,7 @@ const render = (elements, state, i18next) => (path, value) => {
       break;
 
     case 'feeds':
-      renderFeeds(elements, state, i18next);
+      renderFeeds(elements, value, i18next);
       break;
 
     case 'posts':
