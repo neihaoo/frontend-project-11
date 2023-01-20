@@ -22,12 +22,8 @@ const proxy = (url) => {
   return proxyURL;
 };
 
-const validate = (currentURL, feeds) => {
-  const previousURLs = feeds.map(({ url }) => url);
-
-  return string().url().required().notOneOf(previousURLs)
-    .validate(currentURL);
-};
+const validate = (currentURL, previousURLs) => string().url().required().notOneOf(previousURLs)
+  .validate(currentURL);
 
 const updateFeeds = (state) => {
   const promise = state.feeds.map(({ url, id }) => axios.get(proxy(url)).then((response) => {
@@ -131,19 +127,23 @@ export default () => {
       elements.form.addEventListener('submit', (event) => {
         event.preventDefault();
 
-        const url = new FormData(event.target).get('url');
+        const currentURL = new FormData(event.target).get('url');
+        const previousURLs = state.feeds.map(({ url }) => url);
 
-        validate(url, state.feeds)
+        validate(currentURL, previousURLs)
           .then(() => {
             state.form = { ...state.form, valid: true, error: null };
             state.loadingProcess.status = 'loading';
 
-            return axios.get(proxy(url));
+            return axios.get(proxy(currentURL));
           })
           .then((response) => {
             const { title, description, posts } = parse(response.data.contents);
             const feed = {
-              id: uniqueId(), url, title, description,
+              id: uniqueId(),
+              url: currentURL,
+              title,
+              description,
             };
             const postsList = posts.map((post) => ({ ...post, id: uniqueId(), feedId: feed.id }));
 
